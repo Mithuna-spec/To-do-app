@@ -91,33 +91,6 @@ Students juggle assignments, exams, projects, club work, and personal commitment
 
 ---
 
-## Screenshots
-
-<table>
-  <tr>
-    <td width="50%" align="center">
-      <img src="docs/screenshots/login.png" alt="Login page" /><br />
-      <sub><b>Login</b>: secure sign-in</sub>
-    </td>
-    <td width="50%" align="center">
-      <img src="docs/screenshots/dashboard.png" alt="Dashboard" /><br />
-      <sub><b>Dashboard</b>: productivity overview</sub>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" align="center">
-      <img src="docs/screenshots/tasks.png" alt="Task management" /><br />
-      <sub><b>Tasks</b>: create, filter, and prioritize</sub>
-    </td>
-    <td width="50%" align="center">
-      <img src="docs/screenshots/analytics.png" alt="Analytics" /><br />
-      <sub><b>Analytics</b>: progress and statistics</sub>
-    </td>
-  </tr>
-</table>
-
----
-
 ## Technology Stack
 
 | Layer | Technologies |
