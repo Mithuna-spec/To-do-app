@@ -1,0 +1,163 @@
+@import "tailwindcss";
+
+/* ── Custom design tokens ────────────────────────────────────────────────── */
+@theme {
+  /* Surface palette — dark charcoal */
+  --color-surface-50:  #f4f4f6;
+  --color-surface-100: #e9e9ee;
+  --color-surface-200: #d2d2dc;
+  --color-surface-300: #b4b4c4;
+  --color-surface-400: #8e8ea6;
+  --color-surface-500: #6b6b85;
+  --color-surface-600: #565670;
+  --color-surface-700: #3d3d55;
+  --color-surface-750: #2e2e43;
+  --color-surface-800: #252536;
+  --color-surface-850: #1e1e2e;
+  --color-surface-900: #181828;
+  --color-surface-950: #0f0f1a;
+
+  /* Font family */
+  --font-family-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ── Base resets ─────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  background-color: #0f0f1a;
+  color: #e9e9ee;
+  line-height: 1.5;
+}
+
+#root {
+  height: 100%;
+}
+
+/* ── Scrollbar styling ───────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #3d3d55;
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #565670;
+}
+
+/* ── Focus visible ───────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid #7c3aed;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Keyframe animations ─────────────────────────────────────────────────── */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ── Reduced motion support ──────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Light theme overrides ───────────────────────────────────────────────── */
+.light .bg-surface-950 {
+  background-color: #fafafd;
+}
+.light .bg-surface-900 {
+  background-color: #f7f7fb;
+}
+.light .bg-surface-800 {
+  background-color: #ebebf2;
+}
+.light .bg-surface-700 {
+  background-color: #d2d2dc;
+}
+.light .text-surface-50 {
+  color: #0f0f1a;
+}
+.light .text-surface-100 {
+  color: #181828;
+}
+.light .text-surface-200 {
+  color: #252536;
+}
+.light .text-surface-300 {
+  color: #3d3d55;
+}
+.light .text-surface-400 {
+  color: #565670;
+}
+.light .text-surface-500 {
+  color: #6b6b85;
+}
+.light .border-surface-700 {
+  border-color: #d2d2dc;
+}
+.light .border-surface-700\/60 {
+  border-color: rgba(210, 210, 220, 0.6);
+}
+
+/* ── Date input dark-mode picker ─────────────────────────────────────────── */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.6);
+  cursor: pointer;
+}
+
+/* ── Selection color ─────────────────────────────────────────────────────── */
+::selection {
+  background: rgba(124, 58, 237, 0.3);
+  color: #f4f4f6;
+}
