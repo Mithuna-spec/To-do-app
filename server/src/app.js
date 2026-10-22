@@ -18,7 +18,9 @@ import focusRoutes from './routes/focusRoutes.js'
 const app = express()
 
 // CORS configuration for local development
-const allowedOrigins = env.CLIENT_ORIGIN
+const allowedOrigins = (
+  process.env.CLIENT_ORIGIN || 'http://localhost:5173,http://localhost:5174'
+)
   .split(',')
   .map(origin => origin.trim().replace(/\/$/, ''))
 
