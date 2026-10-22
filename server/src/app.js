@@ -18,14 +18,21 @@ import focusRoutes from './routes/focusRoutes.js'
 const app = express()
 
 // CORS configuration for local development
+const allowedOrigins = env.CLIENT_ORIGIN
+  .split(',')
+  .map(origin => origin.trim().replace(/\/$/, ''))
+
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'http://127.0.0.1:5173',
-    'http://127.0.0.1:5174',
-  ],
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin.replace(/\/$/, ''))) {
+      return callback(null, true)
+    }
+
+    return callback(new Error(`CORS blocked origin: ${origin}`))
+  },
   credentials: true,
+  methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }))
 
 app.use(express.json({ limit: '1mb' }))
