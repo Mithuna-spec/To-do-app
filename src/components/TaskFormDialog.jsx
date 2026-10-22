@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { X, AlertCircle } from 'lucide-react'
-import { CATEGORIES, PRIORITIES } from '../utils/taskUtils.js'
+import { CATEGORIES, PRIORITIES } from '../utils/taskUtils.jsx'
 
 const DEFAULT_FORM = {
   title: '',

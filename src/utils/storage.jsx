@@ -1,9 +1,9 @@
 /**
- * storage.js
+ * storage.jsx
  * Utility functions for reading and writing TaskFlow data in localStorage.
  */
 
-import { isValidTask } from './taskUtils.js'
+import { isValidTask } from './taskUtils.jsx'
 
 const TASKS_KEY = 'taskflow_tasks'
 const THEME_KEY = 'taskflow_theme'

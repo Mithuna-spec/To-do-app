@@ -1,17 +1,18 @@
 import { useState, useCallback } from 'react'
-import { useTasks } from './hooks/useTasks.js'
-import { loadTheme, saveTheme } from './utils/storage.js'
-import { todayString } from './utils/taskUtils.js'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { useAuth } from './hooks/useAuth.jsx'
+import { loadTheme, saveTheme } from './utils/storage.jsx'
 
+import LoginPage from './pages/LoginPage.jsx'
+import RegisterPage from './pages/RegisterPage.jsx'
+import DashboardPage from './pages/DashboardPage.jsx'
 import Sidebar from './components/Sidebar.jsx'
 import Header from './components/Header.jsx'
-import StatsCards from './components/StatsCards.jsx'
-import ProgressOverview from './components/ProgressOverview.jsx'
-import TaskList from './components/TaskList.jsx'
-import FilterBar from './components/FilterBar.jsx'
 import TaskFormDialog from './components/TaskFormDialog.jsx'
 import ConfirmDialog from './components/ConfirmDialog.jsx'
 import Toast from './components/Toast.jsx'
+import { useTasks } from './hooks/useTasks.jsx'
+import { todayString } from './utils/taskUtils.jsx'
 
 // ─── Toast manager hook ───────────────────────────────────────────────────────
 
@@ -31,26 +32,31 @@ function useToasts() {
   return { toasts, addToast, dismissToast }
 }
 
-// ─── Sidebar task counts ──────────────────────────────────────────────────────
+// ─── Protected Route Component ─────────────────────────────────────────────────
 
-function computeCounts(tasks) {
-  const today = todayString()
-  return {
-    all: tasks.length,
-    today: tasks.filter(t => t.dueDate === today).length,
-    upcoming: tasks.filter(t => t.dueDate && t.dueDate > today && !t.completed).length,
-    completed: tasks.filter(t => t.completed).length,
-    Study: tasks.filter(t => t.category === 'Study').length,
-    Coding: tasks.filter(t => t.category === 'Coding').length,
-    Personal: tasks.filter(t => t.category === 'Personal').length,
-    Other: tasks.filter(t => t.category === 'Other').length,
+function ProtectedRoute({ children }) {
+  const { user, loading } = useAuth()
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-surface-950 flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-violet-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
   }
+
+  if (!user) {
+    return <Navigate to="/login" replace />
+  }
+
+  return children
 }
 
-// ─── App ──────────────────────────────────────────────────────────────────────
+// ─── Full Dashboard Layout with Sidebar ───────────────────────────────────────
 
-export default function App() {
+function DashboardLayout() {
   const { tasks, addTask, editTask, toggleComplete, deleteTask, computeStats, applyFilters } = useTasks()
+  const { user, logout } = useAuth()
 
   // Theme
   const [theme, setTheme] = useState(() => loadTheme())
@@ -84,8 +90,6 @@ export default function App() {
   const [formOpen, setFormOpen] = useState(false)
   const [formMode, setFormMode] = useState('create')
   const [editingTask, setEditingTask] = useState(null)
-
-  // Confirm delete state
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingDeleteId, setPendingDeleteId] = useState(null)
 
@@ -106,26 +110,34 @@ export default function App() {
     setFormOpen(true)
   }
 
-  function handleFormSubmit(fields) {
-    if (formMode === 'edit') {
-      editTask(editingTask.id, fields)
-      addToast('Task updated successfully.', 'success')
-    } else {
-      addTask(fields)
-      addToast('Task created successfully.', 'success')
+  async function handleFormSubmit(fields) {
+    try {
+      if (formMode === 'edit') {
+        await editTask(editingTask.id, fields)
+        addToast('Task updated successfully.', 'success')
+      } else {
+        await addTask(fields)
+        addToast('Task created successfully.', 'success')
+      }
+      setFormOpen(false)
+    } catch (err) {
+      addToast(err.message || 'Operation failed', 'error')
     }
-    setFormOpen(false)
   }
 
-  function handleToggleComplete(id) {
-    const task = tasks.find(t => t.id === id)
-    if (!task) return
-    toggleComplete(id)
-    const willBeCompleted = !task.completed
-    addToast(
-      willBeCompleted ? 'Task marked as complete!' : 'Task marked as pending.',
-      'success'
-    )
+  async function handleToggleComplete(id) {
+    try {
+      const task = tasks.find(t => t.id === id)
+      if (!task) return
+      const willBeCompleted = !task.completed
+      await toggleComplete(id)
+      addToast(
+        willBeCompleted ? 'Task marked as complete!' : 'Task marked as pending.',
+        'success'
+      )
+    } catch (err) {
+      addToast(err.message || 'Failed to toggle', 'error')
+    }
   }
 
   function handleDeleteRequest(id) {
@@ -133,10 +145,14 @@ export default function App() {
     setConfirmOpen(true)
   }
 
-  function handleDeleteConfirm() {
+  async function handleDeleteConfirm() {
     if (pendingDeleteId) {
-      deleteTask(pendingDeleteId)
-      addToast('Task deleted.', 'deleted')
+      try {
+        await deleteTask(pendingDeleteId)
+        addToast('Task deleted.', 'deleted')
+      } catch (err) {
+        addToast(err.message || 'Failed to delete', 'error')
+      }
     }
     setConfirmOpen(false)
     setPendingDeleteId(null)
@@ -145,6 +161,22 @@ export default function App() {
   function handleDeleteCancel() {
     setConfirmOpen(false)
     setPendingDeleteId(null)
+  }
+
+  // ── Sidebar task counts ──────────────────────────────────────────────────────
+
+  function computeCounts(tasks) {
+    const today = todayString()
+    return {
+      all: tasks.length,
+      today: tasks.filter(t => t.dueDate === today).length,
+      upcoming: tasks.filter(t => t.dueDate && t.dueDate > today && !t.completed).length,
+      completed: tasks.filter(t => t.completed).length,
+      Study: tasks.filter(t => t.category === 'Study').length,
+      Coding: tasks.filter(t => t.category === 'Coding').length,
+      Personal: tasks.filter(t => t.category === 'Personal').length,
+      Other: tasks.filter(t => t.category === 'Other').length,
+    }
   }
 
   // ── Derived data ──────────────────────────────────────────────────────────
@@ -195,50 +227,15 @@ export default function App() {
 
           {/* Scrollable body */}
           <main className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-5" id="main-content" aria-label="Main content">
-            {/* Stats */}
-            <StatsCards stats={stats} />
-
-            {/* Progress */}
-            <ProgressOverview stats={stats} onAddTask={openAddTask} />
-
-            {/* Task workspace */}
-            <section aria-label="Task workspace" className="bg-surface-900 border border-surface-700/60 rounded-xl overflow-hidden">
-              {/* Workspace header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-4 border-b border-surface-700/60">
-                <div>
-                  <h2 className="text-sm font-semibold text-surface-100">
-                    Tasks
-                    <span className="ml-2 text-xs font-medium text-surface-500 bg-surface-800 border border-surface-700 px-2 py-0.5 rounded-md">
-                      {filteredTasks.length}
-                    </span>
-                  </h2>
-                </div>
-                <FilterBar
-                  status={status}
-                  priority={priority}
-                  sort={sort}
-                  onStatusChange={setStatus}
-                  onPriorityChange={setPriority}
-                  onSortChange={setSort}
-                  onReset={resetFilters}
-                  hasActiveFilters={hasActiveFilters}
-                />
-              </div>
-
-              {/* Task list */}
-              <div className="px-4 sm:px-5 py-4">
-                <TaskList
-                  tasks={filteredTasks}
-                  hasSearch={search !== ''}
-                  hasFilters={status !== 'all' || priority !== 'all' || activeCategory !== 'all' || activeView !== 'all'}
-                  view={activeView}
-                  onToggle={handleToggleComplete}
-                  onEdit={openEditTask}
-                  onDelete={handleDeleteRequest}
-                  onAddTask={openAddTask}
-                />
-              </div>
-            </section>
+            <DashboardPage
+              activeView={activeView}
+              activeCategory={activeCategory}
+              search={search}
+              onOpenAdd={openAddTask}
+              onToggle={handleToggleComplete}
+              onEdit={openEditTask}
+              onDelete={handleDeleteRequest}
+            />
           </main>
         </div>
 
@@ -264,5 +261,26 @@ export default function App() {
         <Toast toasts={toasts} onDismiss={dismissToast} />
       </div>
     </div>
+  )
+}
+
+// ─── App ──────────────────────────────────────────────────────────────────────
+
+export default function App() {
+  const { user } = useAuth()
+
+  return (
+    <Routes>
+      <Route path="/login" element={!user ? <LoginPage /> : <Navigate to="/" replace />} />
+      <Route path="/register" element={!user ? <RegisterPage /> : <Navigate to="/" replace />} />
+      <Route
+        path="/*"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
   )
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Pencil, Trash2, Calendar, Flag, Tag, CheckCircle2, Circle, ChevronDown, ChevronUp } from 'lucide-react'
-import { isOverdue, isDueToday, todayString } from '../utils/taskUtils.js'
+import { isOverdue, isDueToday, todayString } from '../utils/taskUtils.jsx'
 
 const PRIORITY_STYLES = {
   High:   { badge: 'bg-rose-500/15 text-rose-300 border-rose-500/25',   dot: 'bg-rose-400',     label: 'High priority' },
