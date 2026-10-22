@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="GDGC/src/docs/banner.svg" alt="TaskFlow: Student Productivity Manager" width="100%">
+<img src="src/docs/banner.svg" alt="TaskFlow: Student Productivity Manager" width="100%">
 
 <br />
 
